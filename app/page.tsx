@@ -112,9 +112,33 @@ const AGENT_IDS = {
 
 const SCHEDULE_ID = '6998b48a399dfadeac37d3a1'
 
-const INDUSTRIES = ['SaaS', 'B2B Tech', 'Fintech', 'Healthtech', 'E-commerce', 'EdTech']
-const SIGNALS = ['Job Postings', 'Funding Rounds', 'Revenue Growth', 'Content Activity']
-const COMPANY_SIZES = ['50-100', '100-250', '250-500', '500+']
+const INDUSTRIES = [
+  'SaaS', 'B2B Tech', 'Fintech', 'Healthtech', 'E-commerce', 'EdTech',
+  'Cybersecurity', 'PR & Communications', 'Marketing Agencies', 'Media & Entertainment',
+  'Real Estate Tech', 'Legal Tech', 'HR Tech', 'AI & Machine Learning',
+  'Clean Energy', 'Logistics & Supply Chain', 'Insurance Tech', 'Retail Tech',
+]
+const SIGNALS = [
+  // Hiring signals
+  'Video/Content Hiring',
+  'Marketing Team Expansion',
+  // Financial signals
+  'Recent Funding Round',
+  'Revenue Growth',
+  // Content & marketing signals
+  'Active Blog/Content',
+  'YouTube Channel Active',
+  'Competitor Using Video',
+  'Product Launch Announced',
+  // Buying intent signals
+  'RFP for Video Services',
+  'Agency Reviews on Clutch/G2',
+  'Event/Conference Planned',
+  'Website Redesign',
+  'New Brand Identity',
+  'Social Media Ad Spend Up',
+]
+const COMPANY_SIZES = ['10-50', '50-100', '100-250', '250-500', '500-1000', '1000+']
 
 const SAMPLE_LEADS: LeadEmail[] = [
   {
@@ -122,7 +146,7 @@ const SAMPLE_LEADS: LeadEmail[] = [
     industry: 'SaaS',
     employee_count: '150-200',
     revenue_range: '$10M-$25M',
-    signals: ['Funding Rounds', 'Job Postings'],
+    signals: ['Recent Funding Round', 'Video/Content Hiring'],
     qualification_score: 85,
     decision_maker_name: 'Sarah Chen',
     decision_maker_title: 'VP of Marketing',
@@ -138,7 +162,7 @@ const SAMPLE_LEADS: LeadEmail[] = [
     industry: 'B2B Tech',
     employee_count: '250-350',
     revenue_range: '$25M-$50M',
-    signals: ['Revenue Growth', 'Content Activity'],
+    signals: ['Revenue Growth', 'Active Blog/Content', 'Competitor Using Video'],
     qualification_score: 72,
     decision_maker_name: 'Michael Torres',
     decision_maker_title: 'Director of Content',
@@ -154,7 +178,7 @@ const SAMPLE_LEADS: LeadEmail[] = [
     industry: 'Fintech',
     employee_count: '100-150',
     revenue_range: '$5M-$15M',
-    signals: ['Job Postings', 'Revenue Growth'],
+    signals: ['Marketing Team Expansion', 'Revenue Growth', 'Product Launch Announced'],
     qualification_score: 91,
     decision_maker_name: 'Amanda Reeves',
     decision_maker_title: 'CMO',
@@ -264,13 +288,22 @@ function getUrgencyColor(urgency: string): string {
 }
 
 function getSignalColor(signal: string): string {
-  switch (signal) {
-    case 'Funding Rounds': return 'bg-purple-100 text-purple-700 border-purple-200'
-    case 'Job Postings': return 'bg-blue-100 text-blue-700 border-blue-200'
-    case 'Revenue Growth': return 'bg-green-100 text-green-700 border-green-200'
-    case 'Content Activity': return 'bg-orange-100 text-orange-700 border-orange-200'
-    default: return 'bg-secondary text-secondary-foreground'
-  }
+  // Hiring signals
+  if (signal.includes('Hiring') || signal.includes('Expansion')) return 'bg-blue-100 text-blue-700 border-blue-200'
+  // Financial signals
+  if (signal.includes('Funding') || signal.includes('Revenue')) return 'bg-purple-100 text-purple-700 border-purple-200'
+  // Content & marketing signals
+  if (signal.includes('Blog') || signal.includes('Content') || signal.includes('YouTube') || signal.includes('Social Media')) return 'bg-orange-100 text-orange-700 border-orange-200'
+  // Buying intent signals
+  if (signal.includes('RFP') || signal.includes('Clutch') || signal.includes('G2') || signal.includes('Agency')) return 'bg-rose-100 text-rose-700 border-rose-200'
+  // Product/brand signals
+  if (signal.includes('Launch') || signal.includes('Redesign') || signal.includes('Brand')) return 'bg-teal-100 text-teal-700 border-teal-200'
+  // Competition signals
+  if (signal.includes('Competitor')) return 'bg-amber-100 text-amber-700 border-amber-200'
+  // Event signals
+  if (signal.includes('Event') || signal.includes('Conference')) return 'bg-indigo-100 text-indigo-700 border-indigo-200'
+  // Default for custom signals
+  return 'bg-emerald-100 text-emerald-700 border-emerald-200'
 }
 
 function generateId(): string {
@@ -531,6 +564,7 @@ export default function Page() {
 
   // Campaign Builder
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([])
+  const [customIndustry, setCustomIndustry] = useState('')
   const [companySize, setCompanySize] = useState('')
   const [selectedSignals, setSelectedSignals] = useState<string[]>([])
   const [volume, setVolume] = useState('10')
@@ -647,7 +681,7 @@ export default function Page() {
     setGeneratedLeads([])
     setSelectedLeadIndices(new Set())
 
-    const message = `Find ${volume || '10'} B2B companies in ${selectedIndustries.join(', ')} with ${companySize || '100-500'} employees showing these signals: ${selectedSignals.length > 0 ? selectedSignals.join(', ') : 'any growth signals'}. Generate personalized video production outreach emails for each lead.`
+    const message = `Find ${volume || '10'} companies in these industries: ${selectedIndustries.join(', ')}. Target companies with ${companySize || '50-1000'} employees. ${selectedSignals.length > 0 ? `Focus on companies showing these buying intent signals for video production: ${selectedSignals.join(', ')}.` : 'Look for any companies showing strong buying intent for professional video production services — prioritize those with RFPs, video hiring, product launches, or competitors using video.'} Generate personalized video production outreach emails for each qualified lead. Prioritize leads with the strongest video production buying intent.`
 
     try {
       const result = await callAIAgent(message, AGENT_IDS.CAMPAIGN_COORDINATOR)
@@ -1053,61 +1087,173 @@ export default function Page() {
                 <Card className="glass-panel border-border/50 shadow-md">
                   <CardHeader>
                     <CardTitle className="text-base font-semibold tracking-tight">Campaign Targeting</CardTitle>
-                    <CardDescription>Define your ideal customer profile to generate targeted leads.</CardDescription>
+                    <CardDescription>Define your ideal customer profile to generate targeted leads actively seeking video production.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-5">
+                  <CardContent className="space-y-6">
                     {/* Industries */}
                     <div>
-                      <Label className="text-sm font-medium">Industries</Label>
-                      <div className="flex flex-wrap gap-2 mt-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-sm font-medium">Industries</Label>
+                        {selectedIndustries.length > 0 && (
+                          <button onClick={() => setSelectedIndustries([])} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">Clear ({selectedIndustries.length})</button>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
                         {INDUSTRIES.map((ind) => {
                           const isSelected = selectedIndustries.includes(ind)
                           return (
-                            <button key={ind} onClick={() => setSelectedIndustries(prev => isSelected ? prev.filter(i => i !== ind) : [...prev, ind])} className={cn('px-3 py-1.5 rounded-xl text-sm font-medium border transition-all duration-200', isSelected ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
+                            <button key={ind} onClick={() => setSelectedIndustries(prev => isSelected ? prev.filter(i => i !== ind) : [...prev, ind])} className={cn('px-3 py-1.5 rounded-xl text-[13px] font-medium border transition-all duration-200', isSelected ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
                               {ind}
                             </button>
                           )
                         })}
                       </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <Input
+                          value={customIndustry}
+                          onChange={(e) => setCustomIndustry(e.target.value)}
+                          placeholder="Add custom industry..."
+                          className="text-sm max-w-xs"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && customIndustry.trim()) {
+                              if (!selectedIndustries.includes(customIndustry.trim())) {
+                                setSelectedIndustries(prev => [...prev, customIndustry.trim()])
+                              }
+                              setCustomIndustry('')
+                            }
+                          }}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!customIndustry.trim()}
+                          onClick={() => {
+                            if (customIndustry.trim() && !selectedIndustries.includes(customIndustry.trim())) {
+                              setSelectedIndustries(prev => [...prev, customIndustry.trim()])
+                            }
+                            setCustomIndustry('')
+                          }}
+                        >
+                          <FiPlus className="h-3.5 w-3.5 mr-1" />Add
+                        </Button>
+                      </div>
                     </div>
+
+                    <Separator />
 
                     {/* Company Size */}
                     <div>
                       <Label className="text-sm font-medium">Company Size (employees)</Label>
-                      <div className="flex flex-wrap gap-2 mt-2">
+                      <div className="flex flex-wrap gap-1.5 mt-2">
                         {COMPANY_SIZES.map((size) => (
-                          <button key={size} onClick={() => setCompanySize(companySize === size ? '' : size)} className={cn('px-3 py-1.5 rounded-xl text-sm font-medium border transition-all duration-200', companySize === size ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
+                          <button key={size} onClick={() => setCompanySize(companySize === size ? '' : size)} className={cn('px-3 py-1.5 rounded-xl text-[13px] font-medium border transition-all duration-200', companySize === size ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
                             {size}
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* Signals */}
+                    <Separator />
+
+                    {/* Signals - grouped by category */}
                     <div>
-                      <Label className="text-sm font-medium">Growth Signals</Label>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {SIGNALS.map((sig) => {
-                          const isSelected = selectedSignals.includes(sig)
-                          return (
-                            <button key={sig} onClick={() => setSelectedSignals(prev => isSelected ? prev.filter(s => s !== sig) : [...prev, sig])} className={cn('px-3 py-1.5 rounded-xl text-sm font-medium border transition-all duration-200', isSelected ? 'border-transparent shadow-sm ' + getSignalColor(sig) : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
-                              {sig}
-                            </button>
-                          )
-                        })}
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-sm font-medium">Buying Intent & Growth Signals</Label>
+                        {selectedSignals.length > 0 && (
+                          <button onClick={() => setSelectedSignals([])} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">Clear ({selectedSignals.length})</button>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">Select signals that indicate companies are actively looking for video production services.</p>
+
+                      {/* Hiring Signals */}
+                      <div className="mb-3">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Hiring Signals</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {SIGNALS.filter(s => s.includes('Hiring') || s.includes('Expansion')).map((sig) => {
+                            const isSelected = selectedSignals.includes(sig)
+                            return (
+                              <button key={sig} onClick={() => setSelectedSignals(prev => isSelected ? prev.filter(s => s !== sig) : [...prev, sig])} className={cn('px-3 py-1.5 rounded-xl text-[13px] font-medium border transition-all duration-200', isSelected ? 'border-transparent shadow-sm ' + getSignalColor(sig) : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
+                                {sig}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Financial Signals */}
+                      <div className="mb-3">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Financial Signals</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {SIGNALS.filter(s => s.includes('Funding') || s.includes('Revenue')).map((sig) => {
+                            const isSelected = selectedSignals.includes(sig)
+                            return (
+                              <button key={sig} onClick={() => setSelectedSignals(prev => isSelected ? prev.filter(s => s !== sig) : [...prev, sig])} className={cn('px-3 py-1.5 rounded-xl text-[13px] font-medium border transition-all duration-200', isSelected ? 'border-transparent shadow-sm ' + getSignalColor(sig) : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
+                                {sig}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Content & Marketing Signals */}
+                      <div className="mb-3">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Content & Marketing Activity</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {SIGNALS.filter(s => s.includes('Blog') || s.includes('YouTube') || s.includes('Competitor') || s.includes('Social Media')).map((sig) => {
+                            const isSelected = selectedSignals.includes(sig)
+                            return (
+                              <button key={sig} onClick={() => setSelectedSignals(prev => isSelected ? prev.filter(s => s !== sig) : [...prev, sig])} className={cn('px-3 py-1.5 rounded-xl text-[13px] font-medium border transition-all duration-200', isSelected ? 'border-transparent shadow-sm ' + getSignalColor(sig) : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
+                                {sig}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Direct Buying Intent */}
+                      <div className="mb-3">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Direct Buying Intent</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {SIGNALS.filter(s => s.includes('RFP') || s.includes('Clutch') || s.includes('Launch') || s.includes('Redesign') || s.includes('Brand') || s.includes('Event') || s.includes('Conference')).map((sig) => {
+                            const isSelected = selectedSignals.includes(sig)
+                            return (
+                              <button key={sig} onClick={() => setSelectedSignals(prev => isSelected ? prev.filter(s => s !== sig) : [...prev, sig])} className={cn('px-3 py-1.5 rounded-xl text-[13px] font-medium border transition-all duration-200', isSelected ? 'border-transparent shadow-sm ' + getSignalColor(sig) : 'bg-background border-border text-muted-foreground hover:border-primary/50')}>
+                                {sig}
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     </div>
+
+                    <Separator />
 
                     {/* Volume */}
                     <div className="max-w-xs">
                       <Label className="text-sm font-medium">Number of Leads</Label>
                       <Input type="number" min={1} max={50} value={volume} onChange={(e) => setVolume(e.target.value)} className="mt-1 font-mono" placeholder="10" />
                     </div>
+
+                    {/* Selection Summary */}
+                    {(selectedIndustries.length > 0 || selectedSignals.length > 0) && (
+                      <div className="p-3 rounded-xl bg-primary/5 border border-primary/20">
+                        <p className="text-xs font-medium text-foreground mb-1.5">Campaign Summary</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Searching for <span className="font-medium text-foreground">{volume || '10'}</span> companies
+                          {selectedIndustries.length > 0 && <> in <span className="font-medium text-foreground">{selectedIndustries.join(', ')}</span></>}
+                          {companySize && <> with <span className="font-medium text-foreground">{companySize}</span> employees</>}
+                          {selectedSignals.length > 0 && <> showing: <span className="font-medium text-foreground">{selectedSignals.join(', ')}</span></>}
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="flex items-center justify-between">
                     <Button onClick={handleGenerateCampaign} disabled={isGenerating || selectedIndustries.length === 0} className="shadow-md shadow-primary/20">
                       {isGenerating ? <><FiLoader className="h-4 w-4 mr-2 animate-spin" />Generating...</> : <><HiOutlineRocketLaunch className="h-4 w-4 mr-2" />Generate Campaign</>}
                     </Button>
+                    {selectedIndustries.length === 0 && (
+                      <p className="text-xs text-muted-foreground">Select at least one industry to start</p>
+                    )}
                   </CardFooter>
                 </Card>
 
