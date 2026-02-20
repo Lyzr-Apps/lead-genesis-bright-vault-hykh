@@ -1,0 +1,23 @@
+{
+  "nodes": [
+    {"id": "input_node", "type": "Input", "label": "User Input", "nodeCategory": "input"},
+    {"id": "manager_agent", "type": "Agent", "label": "Lead Campaign Coordinator", "nodeCategory": "agent"},
+    {"id": "research_agent", "type": "Agent", "label": "Lead Research Agent", "nodeCategory": "agent"},
+    {"id": "drafting_agent", "type": "Agent", "label": "Email Drafting Agent", "nodeCategory": "agent"},
+    {"id": "email_agent", "type": "Agent", "label": "Email Delivery Agent", "nodeCategory": "agent"},
+    {"id": "followup_agent", "type": "Agent", "label": "Follow-Up Tracker Agent", "nodeCategory": "agent"},
+    {"id": "call_agent", "type": "Agent", "label": "Call Scheduler Agent", "nodeCategory": "agent"},
+    {"id": "scheduler_node", "type": "Agent", "label": "Scheduled: Daily at 8:00 AM EST", "nodeCategory": "agent"},
+    {"id": "output_node", "type": "Output", "label": "Output", "nodeCategory": "end"}
+  ],
+  "edges": [
+    {"source": "input_node", "target": "manager_agent"},
+    {"source": "manager_agent", "target": "research_agent"},
+    {"source": "manager_agent", "target": "drafting_agent"},
+    {"source": "manager_agent", "target": "email_agent"},
+    {"source": "email_agent", "target": "followup_agent"},
+    {"source": "scheduler_node", "target": "followup_agent"},
+    {"source": "followup_agent", "target": "call_agent"},
+    {"source": "call_agent", "target": "output_node"}
+  ]
+}

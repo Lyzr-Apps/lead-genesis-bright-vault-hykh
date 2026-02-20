@@ -1,0 +1,40 @@
+{
+  "agent_name": "Email Delivery Agent",
+  "agent_id": "6998b47f2487dbb79e800782",
+  "description": "Sends approved personalized outreach emails and follow-up emails to prospects via Gmail",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "delivery_report": [
+      {
+        "recipient_email": "string",
+        "recipient_name": "string",
+        "company_name": "string",
+        "subject": "string",
+        "status": "string",
+        "sent_at": "string",
+        "error_message": "string"
+      }
+    ],
+    "total_sent": "number",
+    "total_failed": "number",
+    "summary": "string"
+  },
+  "example_response": {
+    "delivery_report": [
+      {
+        "recipient_email": "sample string",
+        "recipient_name": "sample string",
+        "company_name": "sample string",
+        "subject": "sample string",
+        "status": "sample string",
+        "sent_at": "sample string",
+        "error_message": "sample string"
+      }
+    ],
+    "total_sent": 0,
+    "total_failed": 0,
+    "summary": "sample string"
+  }
+}

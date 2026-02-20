@@ -1,0 +1,37 @@
+{
+  "agent_name": "Email Drafting Agent",
+  "agent_id": "6998b40f2487dbb79e800778",
+  "description": "Generates moderately personalized outreach emails using industry-specific templates with dynamic fields for each qualified lead",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "email_drafts": [
+      {
+        "lead_company": "string",
+        "recipient_email": "string",
+        "recipient_name": "string",
+        "subject_line": "string",
+        "email_body": "string",
+        "personalization_notes": "string"
+      }
+    ],
+    "total_drafts": "number",
+    "template_variations_used": "number"
+  },
+  "example_response": {
+    "email_drafts": [
+      {
+        "lead_company": "sample string",
+        "recipient_email": "sample string",
+        "recipient_name": "sample string",
+        "subject_line": "sample string",
+        "email_body": "sample string",
+        "personalization_notes": "sample string"
+      }
+    ],
+    "total_drafts": 0,
+    "template_variations_used": 0
+  },
+  "schema_file": "response_schemas/email_drafting_agent_response.json"
+}

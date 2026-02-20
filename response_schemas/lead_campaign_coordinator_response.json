@@ -1,0 +1,56 @@
+{
+  "agent_name": "Lead Campaign Coordinator",
+  "agent_id": "6998b42347a42b7319aeac6e",
+  "description": "Orchestrates lead research and email personalization workflow; aggregates enriched lead profiles with draft emails for review",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "campaign_summary": "string",
+    "total_leads": "number",
+    "leads_with_emails": [
+      {
+        "company_name": "string",
+        "industry": "string",
+        "employee_count": "string",
+        "revenue_range": "string",
+        "signals": [
+          "string"
+        ],
+        "qualification_score": "number",
+        "decision_maker_name": "string",
+        "decision_maker_title": "string",
+        "decision_maker_email": "string",
+        "company_website": "string",
+        "rationale": "string",
+        "email_subject": "string",
+        "email_body": "string",
+        "personalization_notes": "string"
+      }
+    ]
+  },
+  "example_response": {
+    "campaign_summary": "sample string",
+    "total_leads": 0,
+    "leads_with_emails": [
+      {
+        "company_name": "sample string",
+        "industry": "sample string",
+        "employee_count": "sample string",
+        "revenue_range": "sample string",
+        "signals": [
+          "sample string"
+        ],
+        "qualification_score": 0,
+        "decision_maker_name": "sample string",
+        "decision_maker_title": "sample string",
+        "decision_maker_email": "sample string",
+        "company_website": "sample string",
+        "rationale": "sample string",
+        "email_subject": "sample string",
+        "email_body": "sample string",
+        "personalization_notes": "sample string"
+      }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "agent_name": "Follow-Up Tracker Agent",
+  "agent_id": "6998b47f61ca1802d718506b",
+  "description": "Scans Gmail inbox daily for prospect replies, categorizes responses, flags leads needing follow-up, and drafts follow-up email suggestions",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "scan_summary": "string",
+    "total_scanned": "number",
+    "categorized_leads": [
+      {
+        "prospect_email": "string",
+        "prospect_name": "string",
+        "company_name": "string",
+        "category": "string",
+        "reply_snippet": "string",
+        "last_contact_date": "string",
+        "followup_draft_subject": "string",
+        "followup_draft_body": "string",
+        "urgency": "string"
+      }
+    ],
+    "interested_count": "number",
+    "needs_followup_count": "number",
+    "not_interested_count": "number"
+  },
+  "example_response": {
+    "scan_summary": "sample string",
+    "total_scanned": 0,
+    "categorized_leads": [
+      {
+        "prospect_email": "sample string",
+        "prospect_name": "sample string",
+        "company_name": "sample string",
+        "category": "sample string",
+        "reply_snippet": "sample string",
+        "last_contact_date": "sample string",
+        "followup_draft_subject": "sample string",
+        "followup_draft_body": "sample string",
+        "urgency": "sample string"
+      }
+    ],
+    "interested_count": 0,
+    "needs_followup_count": 0,
+    "not_interested_count": 0
+  }
+}

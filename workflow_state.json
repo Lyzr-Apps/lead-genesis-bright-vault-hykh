@@ -1,0 +1,138 @@
+{
+  "agents": [
+    {
+      "node_id": "research_agent",
+      "agent_id": "6998b40f44e76e643b8ffba4",
+      "name": "Lead Research Agent",
+      "type": "sub_agent",
+      "provider": "perplexity",
+      "model": "sonar-pro",
+      "temperature": 0.2,
+      "top_p": 1,
+      "tools": [],
+      "managed_by": "6998b42347a42b7319aeac6e",
+      "capabilities": ["web_search"],
+      "response_schema_file": "response_schemas/lead_research_agent_response.json"
+    },
+    {
+      "node_id": "drafting_agent",
+      "agent_id": "6998b40f2487dbb79e800778",
+      "name": "Email Drafting Agent",
+      "type": "sub_agent",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.7,
+      "top_p": 0.95,
+      "tools": [],
+      "managed_by": "6998b42347a42b7319aeac6e",
+      "capabilities": ["text_generation"],
+      "response_schema_file": "response_schemas/email_drafting_agent_response.json"
+    },
+    {
+      "node_id": "manager_agent",
+      "agent_id": "6998b42347a42b7319aeac6e",
+      "name": "Lead Campaign Coordinator",
+      "type": "manager",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.3,
+      "top_p": 1,
+      "tools": [],
+      "managed_agents": [
+        "6998b40f44e76e643b8ffba4",
+        "6998b40f2487dbb79e800778"
+      ],
+      "capabilities": ["orchestration"],
+      "response_schema_file": "response_schemas/lead_campaign_coordinator_response.json"
+    },
+    {
+      "node_id": "email_agent",
+      "agent_id": "6998b47f2487dbb79e800782",
+      "name": "Email Delivery Agent",
+      "type": "independent",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.2,
+      "top_p": 1,
+      "tools": [
+        {
+          "tool_name": "gmail",
+          "tool_source": "composio",
+          "action_names": ["GMAIL_SEND_EMAIL"]
+        }
+      ],
+      "capabilities": ["gmail_send"],
+      "response_schema_file": "response_schemas/email_delivery_agent_response.json",
+      "tool_input_forms": {
+        "GMAIL_SEND_EMAIL": ["recipient_email", "subject", "body"]
+      }
+    },
+    {
+      "node_id": "followup_agent",
+      "agent_id": "6998b47f61ca1802d718506b",
+      "name": "Follow-Up Tracker Agent",
+      "type": "independent",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.4,
+      "top_p": 1,
+      "tools": [
+        {
+          "tool_name": "gmail",
+          "tool_source": "composio",
+          "action_names": ["GMAIL_FETCH_EMAILS"]
+        }
+      ],
+      "capabilities": ["gmail_fetch", "scheduled"],
+      "response_schema_file": "response_schemas/follow_up_tracker_agent_response.json",
+      "schedule": {
+        "schedule_id": "6998b48a399dfadeac37d3a1",
+        "cron_expression": "0 8 * * *",
+        "timezone": "America/New_York",
+        "description": "Daily at 8:00 AM EST",
+        "next_run": "2026-02-21T08:00:00-05:00",
+        "is_active": true
+      }
+    },
+    {
+      "node_id": "call_agent",
+      "agent_id": "6998b48047a42b7319aeac7a",
+      "name": "Call Scheduler Agent",
+      "type": "independent",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "temperature": 0.3,
+      "top_p": 1,
+      "tools": [
+        {
+          "tool_name": "googlecalendar",
+          "tool_source": "composio",
+          "action_names": ["GOOGLECALENDAR_FIND_FREE_SLOTS", "GOOGLECALENDAR_CREATE_EVENT", "GOOGLECALENDAR_LIST_CALENDARS"]
+        }
+      ],
+      "capabilities": ["google_calendar"],
+      "response_schema_file": "response_schemas/call_scheduler_agent_response.json",
+      "tool_input_forms": {
+        "GOOGLECALENDAR_CREATE_EVENT": ["prospect_email", "prospect_name", "company_name", "preferred_date", "preferred_time", "duration", "agenda"]
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "schedule_id": "6998b48a399dfadeac37d3a1",
+      "agent_id": "6998b47f61ca1802d718506b",
+      "agent_name": "Follow-Up Tracker Agent",
+      "cron_expression": "0 8 * * *",
+      "timezone": "America/New_York",
+      "is_active": true,
+      "next_run": "2026-02-21T08:00:00-05:00"
+    }
+  ],
+  "metadata": {
+    "app_name": "LeadFlow AI",
+    "description": "Video Agency Sales Accelerator",
+    "total_agents": 6,
+    "total_schedules": 1,
+    "created_at": "2026-02-20"
+  }
+}

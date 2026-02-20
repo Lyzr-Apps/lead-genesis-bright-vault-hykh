@@ -1,0 +1,47 @@
+{
+  "agent_name": "Lead Research Agent",
+  "agent_id": "6998b40f44e76e643b8ffba4",
+  "description": "Searches the web for B2B/SaaS/tech companies showing video production signals -- job postings, funding rounds, company size/revenue, industry triggers -- and returns qualified lead profiles",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "leads": [
+      {
+        "company_name": "string",
+        "industry": "string",
+        "employee_count": "string",
+        "revenue_range": "string",
+        "signals": ["string"],
+        "qualification_score": "number",
+        "decision_maker_name": "string",
+        "decision_maker_title": "string",
+        "decision_maker_email": "string",
+        "company_website": "string",
+        "rationale": "string"
+      }
+    ],
+    "total_found": "number",
+    "search_criteria_summary": "string"
+  },
+  "example_response": {
+    "leads": [
+      {
+        "company_name": "sample string",
+        "industry": "sample string",
+        "employee_count": "sample string",
+        "revenue_range": "sample string",
+        "signals": ["sample string"],
+        "qualification_score": 0,
+        "decision_maker_name": "sample string",
+        "decision_maker_title": "sample string",
+        "decision_maker_email": "sample string",
+        "company_website": "sample string",
+        "rationale": "sample string"
+      }
+    ],
+    "total_found": 0,
+    "search_criteria_summary": "sample string"
+  },
+  "schema_file": "response_schemas/lead_research_agent_response.json"
+}

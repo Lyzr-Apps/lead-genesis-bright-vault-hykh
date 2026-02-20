@@ -1,0 +1,54 @@
+{
+  "agent_name": "Call Scheduler Agent",
+  "agent_id": "6998b48047a42b7319aeac7a",
+  "description": "Checks Google Calendar for available slots and creates discovery call events with interested prospects",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "scheduling_status": "string",
+    "event_details": {
+      "event_title": "string",
+      "prospect_name": "string",
+      "prospect_email": "string",
+      "company_name": "string",
+      "scheduled_date": "string",
+      "scheduled_time": "string",
+      "duration_minutes": "number",
+      "meeting_link": "string",
+      "calendar_name": "string",
+      "agenda": "string"
+    },
+    "alternative_slots": [
+      {
+        "date": "string",
+        "time": "string",
+        "available": "boolean"
+      }
+    ],
+    "notes": "string"
+  },
+  "example_response": {
+    "scheduling_status": "sample string",
+    "event_details": {
+      "event_title": "sample string",
+      "prospect_name": "sample string",
+      "prospect_email": "sample string",
+      "company_name": "sample string",
+      "scheduled_date": "sample string",
+      "scheduled_time": "sample string",
+      "duration_minutes": 0,
+      "meeting_link": "sample string",
+      "calendar_name": "sample string",
+      "agenda": "sample string"
+    },
+    "alternative_slots": [
+      {
+        "date": "sample string",
+        "time": "sample string",
+        "available": false
+      }
+    ],
+    "notes": "sample string"
+  }
+}
