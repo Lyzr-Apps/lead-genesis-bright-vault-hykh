@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { callAIAgent } from '@/lib/aiAgent'
 import { listSchedules, getSchedule, getScheduleLogs, pauseSchedule, resumeSchedule, triggerScheduleNow, cronToHuman, type Schedule, type ExecutionLog } from '@/lib/scheduler'
 import parseLLMJson from '@/lib/jsonParser'
@@ -311,6 +311,46 @@ function generateId(): string {
 }
 
 // =====================================================================
+// PERSISTENCE HELPERS
+// =====================================================================
+
+const STORAGE_KEY = 'leadflow_app_state'
+
+interface PersistedState {
+  metrics: { totalLeads: number; emailsSent: number; replies: number; callsBooked: number }
+  campaigns: Campaign[]
+  activityLog: Activity[]
+  generatedLeads: LeadEmail[]
+  followUpLeads: FollowUpLead[]
+  scheduledCalls: ScheduledCall[]
+  settings: { followUpDays: string; maxFollowUps: string; greetingStyle: string; signature: string; dailyCap: string }
+  savedAt: number
+}
+
+function saveState(state: Omit<PersistedState, 'savedAt'>): void {
+  try {
+    const toSave: PersistedState = { ...state, savedAt: Date.now() }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
+  } catch { /* quota exceeded or unavailable */ }
+}
+
+function loadState(): PersistedState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as PersistedState
+    // Expire after 7 days
+    if (parsed.savedAt && Date.now() - parsed.savedAt > 7 * 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(STORAGE_KEY)
+      return null
+    }
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+// =====================================================================
 // ERROR BOUNDARY
 // =====================================================================
 
@@ -557,6 +597,9 @@ export default function Page() {
   // Sample data toggle
   const [showSampleData, setShowSampleData] = useState(false)
 
+  // Hydration flag — prevents overwriting restored state
+  const hydrated = useRef(false)
+
   // Dashboard
   const [metrics, setMetrics] = useState({ totalLeads: 0, emailsSent: 0, replies: 0, callsBooked: 0 })
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
@@ -608,6 +651,32 @@ export default function Page() {
     setCurrentTime(new Date().toLocaleString())
   }, [])
 
+  // =====================================================================
+  // RESTORE STATE FROM LOCALSTORAGE ON MOUNT
+  // =====================================================================
+  useEffect(() => {
+    const saved = loadState()
+    if (saved) {
+      if (saved.metrics) setMetrics(saved.metrics)
+      if (Array.isArray(saved.campaigns)) setCampaigns(saved.campaigns)
+      if (Array.isArray(saved.activityLog)) setActivityLog(saved.activityLog)
+      if (Array.isArray(saved.generatedLeads)) setGeneratedLeads(saved.generatedLeads)
+      if (Array.isArray(saved.followUpLeads)) setFollowUpLeads(saved.followUpLeads)
+      if (Array.isArray(saved.scheduledCalls)) setScheduledCalls(saved.scheduledCalls)
+      if (saved.settings) setSettings(saved.settings)
+    }
+    hydrated.current = true
+  }, [])
+
+  // =====================================================================
+  // PERSIST STATE TO LOCALSTORAGE ON CHANGES
+  // =====================================================================
+  useEffect(() => {
+    if (!hydrated.current) return
+    if (showSampleData) return // Don't persist sample data
+    saveState({ metrics, campaigns, activityLog, generatedLeads, followUpLeads, scheduledCalls, settings })
+  }, [metrics, campaigns, activityLog, generatedLeads, followUpLeads, scheduledCalls, settings, showSampleData])
+
   // Apply sample data
   useEffect(() => {
     if (showSampleData) {
@@ -626,13 +695,25 @@ export default function Page() {
         { id: 'a3', action: 'Inbox Scanned', detail: '3 replies detected, 1 interested', timestamp: '2025-01-15 08:00 AM', agentName: 'Follow-Up Tracker' },
         { id: 'a4', action: 'Call Scheduled', detail: 'Discovery call with Sarah Chen at TechFlow', timestamp: '2025-01-15 09:30 AM', agentName: 'Call Scheduler' },
       ])
-    } else {
-      setGeneratedLeads([])
-      setFollowUpLeads([])
-      setScheduledCalls([])
-      setMetrics({ totalLeads: 0, emailsSent: 0, replies: 0, callsBooked: 0 })
-      setCampaigns([])
-      setActivityLog([])
+    } else if (hydrated.current) {
+      // Only clear if user manually toggled off sample data, not on initial load
+      const saved = loadState()
+      if (saved && (saved.generatedLeads.length > 0 || saved.campaigns.length > 0)) {
+        // Restore real data instead of clearing
+        setMetrics(saved.metrics)
+        setCampaigns(saved.campaigns)
+        setActivityLog(saved.activityLog)
+        setGeneratedLeads(saved.generatedLeads)
+        setFollowUpLeads(saved.followUpLeads)
+        setScheduledCalls(saved.scheduledCalls)
+      } else {
+        setGeneratedLeads([])
+        setFollowUpLeads([])
+        setScheduledCalls([])
+        setMetrics({ totalLeads: 0, emailsSent: 0, replies: 0, callsBooked: 0 })
+        setCampaigns([])
+        setActivityLog([])
+      }
     }
   }, [showSampleData])
 

@@ -108,6 +108,14 @@ export async function callAIAgent(
       }
     }
 
+    if (submitRes.status >= 500) {
+      return {
+        success: false,
+        response: { status: 'error', result: {}, message: `Server error (${submitRes.status})` },
+        error: `Server error (${submitRes.status})`,
+      }
+    }
+
     const submitData = await submitRes.json()
 
     // If submit itself failed or no task_id returned, return as-is
@@ -137,8 +145,8 @@ export async function callAIAgent(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task_id }),
       })
-      if (!pollRes) {
-        continue // fetchWrapper returned undefined (redirect/error) — retry next poll
+      if (!pollRes || pollRes.status >= 500) {
+        continue // fetchWrapper returned undefined or server error — retry next poll
       }
       const pollData = await pollRes.json()
 
